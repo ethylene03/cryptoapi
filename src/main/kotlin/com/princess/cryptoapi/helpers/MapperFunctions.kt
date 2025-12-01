@@ -23,7 +23,8 @@ fun PortfolioEntity.toPortfolioResponse(): PortfolioDTO = PortfolioDTO(
     id = this.id,
     userId = this.user?.id ?: throw IllegalArgumentException("User is required."),
     name = this.name,
-    holdings = this.holdings.map { it.toHoldingResponse() }
+    holdings = this.holdings.map { it.toHoldingResponse() },
+    totalAmount = this.holdings.sumOf { it.amount }
 )
 
 fun PortfolioDTO.createPortfolioEntity(user: UserEntity): PortfolioEntity = PortfolioEntity(
