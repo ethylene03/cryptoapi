@@ -4,7 +4,7 @@ import java.util.UUID
 
 data class PortfolioDTO(
     val id: UUID? = null,
-    val userId: UUID,
-    val assetId: String,
-    val amount: Double
+    val userId: UUID? = null,
+    val name: String,
+    val holdings: List<HoldingDTO>?
 )

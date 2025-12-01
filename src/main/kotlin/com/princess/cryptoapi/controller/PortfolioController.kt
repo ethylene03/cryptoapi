@@ -4,22 +4,30 @@ import com.princess.cryptoapi.dto.PortfolioDTO
 import com.princess.cryptoapi.service.PortfolioService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
 @Validated
-@RequestMapping("/portfolio")
+@RequestMapping("/portfolios")
 class PortfolioController(private val service: PortfolioService) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    fun create(@RequestBody details: PortfolioDTO): PortfolioDTO {
+    fun create(@RequestBody details: PortfolioDTO, @AuthenticationPrincipal userId: UUID): PortfolioDTO {
         log.info("Running POST /portfolio method.")
 
-        return service.create(details).also { log.info("Portfolio saved.") }
+        return service.create(details, userId).also { log.info("Portfolio saved.") }
+    }
+
+    @GetMapping
+    fun findAll(@AuthenticationPrincipal userId: UUID): List<PortfolioDTO> {
+        log.info("Running GET /portfolio/{id} method.")
+
+        return service.findByUserId(userId).also { log.info("Portfolios fetched.") }
     }
 
     @GetMapping("/{id}")
@@ -30,10 +38,14 @@ class PortfolioController(private val service: PortfolioService) {
     }
 
     @PutMapping("/{id}")
-    fun update(@PathVariable("id") id: UUID, @RequestBody details: PortfolioDTO): PortfolioDTO {
+    fun update(
+        @PathVariable("id") id: UUID,
+        @RequestBody details: PortfolioDTO,
+        @AuthenticationPrincipal userId: UUID
+    ): PortfolioDTO {
         log.info("Running PUT /portfolio/{id} method.")
 
-        return service.update(id, details).also { log.info("Portfolio updated.") }
+        return service.update(id, details, userId).also { log.info("Portfolio updated.") }
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

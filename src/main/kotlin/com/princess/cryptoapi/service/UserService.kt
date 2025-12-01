@@ -1,12 +1,7 @@
 package com.princess.cryptoapi.service
 
 import com.princess.cryptoapi.dto.UserDTO
-import com.princess.cryptoapi.helpers.DuplicateKeyException
-import com.princess.cryptoapi.helpers.InvalidCredentialsException
-import com.princess.cryptoapi.helpers.PasswordManager
-import com.princess.cryptoapi.helpers.ResourceNotFoundException
-import com.princess.cryptoapi.helpers.createEntity
-import com.princess.cryptoapi.helpers.toResponse
+import com.princess.cryptoapi.helpers.*
 import com.princess.cryptoapi.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -26,9 +21,9 @@ class UserService(private val repository: UserRepository, private val passwordMa
 
         log.debug("Saving user..")
         return user.copy(password = passwordManager.hash(user.password))
-            .createEntity()
+            .createUserEntity()
             .let { repository.save(it) }
-            .toResponse()
+            .toUserResponse()
     }
 
     fun find(id: UUID): UserDTO {
@@ -36,7 +31,7 @@ class UserService(private val repository: UserRepository, private val passwordMa
             .orElseThrow {
                 log.error("Data with id $id not found.")
                 throw ResourceNotFoundException("ID does not exist.")
-            }.toResponse()
+            }.toUserResponse()
     }
 
     fun update(id: UUID, details: UserDTO): UserDTO {
@@ -64,7 +59,7 @@ class UserService(private val repository: UserRepository, private val passwordMa
         return currentUser.apply {
             name = details.name
             username = details.username
-        }.run { repository.save(this) }.toResponse()
+        }.run { repository.save(this) }.toUserResponse()
     }
 
     fun delete(id: UUID) {
